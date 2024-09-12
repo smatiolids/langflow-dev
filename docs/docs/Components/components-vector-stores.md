@@ -292,6 +292,7 @@ For more information, see the [PGVector documentation](https://github.com/pgvect
 
 
 ## Pinecone
+Here’s a clearer and more concise version of the instructions:
 
 This component creates a Pinecone Vector Store with search capabilities.
 For more information, see the [Pinecone documentation](https://docs.pinecone.io/home).
