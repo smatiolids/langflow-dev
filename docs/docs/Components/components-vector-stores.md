@@ -75,6 +75,47 @@ Ensure you configure the necessary Astra DB token and API endpoint before starti
 - **Metadata Indexing Exclude:** Fields to exclude from metadata indexing.
 - **Collection Indexing Policy:** Indexing policy for the collection.
 
+Here’s a clearer and more concise version of the instructions:
+
+---
+
+### Astra DB Tool
+
+The `Astra DB Tool` allows agents to connect to and query data from Astra DB Collections.
+
+**Parameters:**
+
+- **Tool Name**: The name used to reference the tool in the agent's prompt.
+- **Tool Description**: A brief description of the tool. This helps the model decide when to use it.
+- **Collection Name**: The name of the Astra DB collection to query.
+- **Token**: The authentication token for accessing Astra DB.
+- **API Endpoint**: The Astra DB API endpoint.
+- **Projection Fields**: The attributes to return, separated by commas. Default: "*".
+- **Tool Parameters**: Parameters the model needs to fill to execute the tool. For required parameters, use an exclamation mark (e.g., "!customer_id").
+- **Static Filters**: Attribute-value pairs used to filter query results.
+- **Limit**: The number of documents to return.
+
+---
+
+### Astra DB CQL Tool
+
+The `Astra DB CQL Tool` allows agents to query data from CQL Tables in Astra DB.
+
+**Parameters:**
+
+- **Tool Name**: The name used to reference the tool in the agent's prompt.
+- **Tool Description**: A brief description of the tool to guide the model in using it.
+- **Keyspace**: The name of the keyspace.
+- **Table Name**: The name of the Astra DB CQL table to query.
+- **Token**: The authentication token for Astra DB.
+- **API Endpoint**: The Astra DB API endpoint.
+- **Projection Fields**: The attributes to return, separated by commas. Default: "*".
+- **Partition Keys**: Required parameters that the model must fill to query the tool.
+- **Clustering Keys**: Optional parameters the model can fill to refine the query. Required parameters should be marked with an exclamation mark (e.g., "!customer_id").
+- **Static Filters**: Attribute-value pairs used to filter query results.
+- **Limit**: The number of records to return.
+
+
 ---
 
 
