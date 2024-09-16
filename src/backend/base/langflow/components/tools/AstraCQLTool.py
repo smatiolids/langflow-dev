@@ -38,7 +38,7 @@ class AstraCQLToolComponent(LCToolComponent):
         StrInput(
             name="keyspace",
             display_name="Keyspace",
-            value="default_keyspace",
+            value="default_namespace",
             info="The keyspace name within Astra DB where the data is stored.",
             required=True,
         ),

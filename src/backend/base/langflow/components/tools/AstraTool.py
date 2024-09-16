@@ -34,6 +34,13 @@ class AstraToolComponent(LCToolComponent):
             required=True,
         ),
         StrInput(
+            name="namespace",
+            display_name="Namespace Name",
+            info="The name of the namespace within Astra where the collection is be stored.",
+            value="default_namespace",
+            advanced=True,
+        ),
+        StrInput(
             name="collection_name",
             display_name="Collection Name",
             info="The name of the collection within Astra DB where the vectors will be stored.",
@@ -81,7 +88,8 @@ class AstraToolComponent(LCToolComponent):
             return self._cached_collection
 
         _cached_client = DataAPIClient(self.token)
-        _cached_db = _cached_client.get_database(self.api_endpoint)
+        _cached_db = _cached_client.get_database(
+            self.api_endpoint,  namespace=self.namespace)
         self._cached_collection = _cached_db.get_collection(
             self.collection_name)
         return self._cached_collection
