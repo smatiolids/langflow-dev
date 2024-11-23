@@ -291,6 +291,7 @@ import SvgWolfram from "../icons/Wolfram/Wolfram";
 import { HackerNewsIcon } from "../icons/hackerNews";
 import { MistralIcon } from "../icons/mistral";
 import { SupabaseIcon } from "../icons/supabase";
+import { WhatsAppIcon } from "../icons/WhatsApp";
 import { iconsType } from "../types/components";
 
 export const BG_NOISE =
@@ -509,6 +510,7 @@ export const SIDEBAR_BUNDLES = [
   { display_name: "Git", name: "git", icon: "GitLoader" },
   { display_name: "Confluence", name: "confluence", icon: "Confluence" },
   { display_name: "Mem0", name: "mem0", icon: "Mem0" },
+  { display_name: "WhatsApp", name: "whatsapp", icon: "WhatsApp" },
 ];
 
 export const categoryIcons = {
@@ -535,7 +537,7 @@ export const categoryIcons = {
   toolkits: Package2,
   tools: Hammer,
   custom: Edit,
-  custom_components: GradientInfinity,
+  custom_components: GradientInfinity
 };
 
 export const nodeIconsLucide: iconsType = {
@@ -653,6 +655,7 @@ export const nodeIconsLucide: iconsType = {
   VertexAIEmbeddings: VertexAIIcon,
   Share3: ShareIcon,
   Share4: Share2Icon,
+  WhatsApp: WhatsAppIcon,
   WikipediaAPIWrapper: SvgWikipedia,
   WolframAlphaAPIWrapper: SvgWolfram,
   WikipediaQueryRun: SvgWikipedia,
