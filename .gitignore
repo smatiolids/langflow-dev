@@ -251,6 +251,7 @@ dmypy.json
 # Poetry
 .testenv/*
 langflow.db
+langflow_dev.db
 
 
 .githooks/prepare-commit-msg

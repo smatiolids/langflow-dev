@@ -1,7 +1,7 @@
 
-from .webhook import WhatsAppWebhookComponent
-from .output import WhatsAppOutput
-from .message_store_astradb import WhatsAppMessageStoreAstraDBComponent
+from .wa_webhook import WhatsAppWebhookComponent
+from .wa_output import WhatsAppOutput
+from .wa_store_astradb import WhatsAppMessageStoreAstraDBComponent
 
 __all__ = [
     "WhatsAppWebhookComponent",

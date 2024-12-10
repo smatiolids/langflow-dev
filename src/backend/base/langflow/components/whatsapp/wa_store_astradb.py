@@ -1,4 +1,4 @@
-import urllib
+import json
 from http import HTTPStatus
 from typing import Any
 
@@ -7,9 +7,8 @@ from langchain.pydantic_v1 import BaseModel, Field, create_model
 from langchain_core.tools import StructuredTool
 
 from langflow.base.langchain_utilities.model import LCToolComponent, Component
-from langflow.io import DictInput, IntInput, SecretStrInput, StrInput, DataInput, Output
+from langflow.io import DictInput, IntInput, SecretStrInput, StrInput, DataInput, Output, MessageInput
 from langflow.schema import Data
-
 
 class WhatsAppMessageStoreAstraDBComponent(Component):
     display_name: str = "Astra DB - Message Store"
@@ -18,7 +17,7 @@ class WhatsAppMessageStoreAstraDBComponent(Component):
     icon: str = "AstraDB"
 
     inputs = [
-        DataInput(name="data", display_name="Data",
+        DataInput(name="wa_event", display_name="Data",
                   info="WhatsApp message data to store in Astra DB."),
         StrInput(
             name="keyspace",
@@ -95,16 +94,33 @@ class WhatsAppMessageStoreAstraDBComponent(Component):
         headers = {"Accept": "application/json",
                    "X-Cassandra-Token": f"{self.token}"}
         astra_url = f"{self.api_endpoint}/api/rest/v2/keyspaces/{self.keyspace}/{self.table_name}/"
-        key = []
-        # Partition keys are mandatory
-        url = f'{astra_url}{"/".join([self.data["recipient_id"], self.data["message_id"]])}'
         
-        print("Astra Payload")
-        print(self.data)
         
-        res = requests.request("PATCH", url=url, headers=headers, timeout=10, data=self.data)
-
-        return {"status_code": res.status_code, "message": res.json()}
+        print("WA Event")
+        print(self.wa_event)
+        
+        body = self.wa_event.data
+        
+        print("WA Body")
+        print(body)
+        
+        if "recipient_id" not in body:
+            print("Recipient ID not found")
+            return {"status_code": 400, "message": "Recipient ID not found"}
+            
+        url = f'{astra_url}{"/".join([body["recipient_id"], body["message_id"]])}'
+        
+        body.pop("recipient_id")
+        body.pop("message_id")
+        
+        if "text" in body:
+            body["message_text"] = body.pop("text")
+        
+        res = requests.request("PATCH", url=url, headers=headers, timeout=10, json=body)        
+        response = res.json()
+        print("Astra DB Response")
+        print(response)
+        return {"status_code": res.status_code, "message": response}
 
     def run_store_data(self) -> Data:
         print("Running Astra DB Message Store")

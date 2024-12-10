@@ -29,7 +29,7 @@ class StatusMessage(MessageBase):
     status_timestamp: datetime
     status: str
 
-class WAMessage:
+class WAMessage(BaseModel):
     """Handles WhatsApp webhook message formatting and validation"""
 
     def __init__(self, raw_message: Dict):

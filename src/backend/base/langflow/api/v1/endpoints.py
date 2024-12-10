@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import os
 import time
 from http import HTTPStatus
 from typing import TYPE_CHECKING, Annotated
 from uuid import UUID
+import json
 
 import sqlalchemy as sa
 from fastapi import (
@@ -295,8 +297,23 @@ async def simplified_run_flow(
 
     return result
 
+@router.get("/whatsapp/{flow_id_or_name}", response_model=int, status_code=HTTPStatus.OK)
+async def webhook_validate_flow(
+    flow: Annotated[Flow, Depends(get_flow_by_id_or_endpoint_name)],
+    request: Request,
+):
+    # Handle whatsapp webhook verification
+    # 
+    data = dict(request.query_params)
+    
+    if data["hub.mode"] == "subscribe" and data["hub.verify_token"] == os.getenv("WHATSAPP_VERIFY_TOKEN"):
+        return data["hub.challenge"]
+    else:
+        error_msg = "Invalid request"
+        raise HTTPException(status_code=400, detail=error_msg)
 
-@router.post("/webhook/{flow_id_or_name}", response_model=dict, status_code=HTTPStatus.ACCEPTED)  # noqa: RUF100, FAST003
+@router.post("/whatsapp/{flow_id_or_name}", response_model=dict, status_code=HTTPStatus.ACCEPTED)
+@router.post("/webhook/{flow_id_or_name}", response_model=dict, status_code=HTTPStatus.ACCEPTED)
 async def webhook_run_flow(
     flow: Annotated[Flow, Depends(get_flow_by_id_or_endpoint_name)],
     user: Annotated[User, Depends(get_user_by_flow_id_or_endpoint_name)],
@@ -329,7 +346,7 @@ async def webhook_run_flow(
             raise HTTPException(status_code=500, detail=error_msg) from exc
 
         if not data:
-            error_msg = "Request body is empty. You should provide a JSON payload containing the flow ID."
+            error_msg = "No data provided. For POST requests, provide a JSON payload. For GET requests, provide query parameters."
             raise HTTPException(status_code=400, detail=error_msg)
 
         try:

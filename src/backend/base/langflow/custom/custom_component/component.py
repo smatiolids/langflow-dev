@@ -661,7 +661,7 @@ class Component(CustomComponent):
             return PlaceholderGraph(
                 flow_id=flow_id, user_id=str(user_id), session_id=session_id, context={}, flow_name=flow_name
             )
-        msg = f"{name} not found in {self.__class__.__name__}"
+        msg = f"{name} not found in {self.__class__.__name__} {self.__dict__['_id']}"
         raise AttributeError(msg)
 
     def _set_input_value(self, name: str, value: Any) -> None:
