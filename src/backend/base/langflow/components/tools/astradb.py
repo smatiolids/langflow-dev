@@ -6,7 +6,7 @@ from astrapy import Collection, DataAPIClient, Database
 from astrapy.admin import parse_api_endpoint
 from langchain.pydantic_v1 import BaseModel, Field, create_model
 from langchain_core.tools import StructuredTool, Tool
-
+from typing import Optional
 from langflow.base.langchain_utilities.model import LCToolComponent
 from langflow.io import BoolInput, DictInput, HandleInput, IntInput, SecretStrInput, StrInput, TableInput
 from langflow.logging import logger
@@ -119,13 +119,13 @@ class AstraDBToolComponent(LCToolComponent):
                     "default": "False",
                 },
                 {
-                    "name": "is_timestamp",
-                    "display_name": "Is Timestamp",
-                    "type": "boolean",
+                    "name": "datatype",
+                    "display_name": "Data Type",
+                    "type": "str",
                     "edit_mode": EditMode.INLINE,
-                    "description": ("Indicate if the field is a timestamp."),
-                    "options": ["True", "False"],
-                    "default": "False",
+                    "description": ("Indicate the data type of the field."),
+                    "options": ["string", "number", "boolean", "timestamp"],
+                    "default": "string",
                 },
                 {
                     "name": "operator",
@@ -139,14 +139,6 @@ class AstraDBToolComponent(LCToolComponent):
                 },
             ],
             value=[],
-        ),
-        DictInput(
-            name="tool_params",
-            info="DEPRECATED: Attributes to filter and description to the model. "
-            "Add ! for mandatory (e.g: !customerId)",
-            display_name="Tool params",
-            is_list=True,
-            advanced=True,
         ),
         DictInput(
             name="static_filters",
@@ -207,37 +199,34 @@ class AstraDBToolComponent(LCToolComponent):
             return self._cached_collection
 
     def create_args_schema(self) -> dict[str, BaseModel]:
-        """DEPRECATED: This method is deprecated. Please use create_args_schema_v2 instead.
-
-        It is keep only for backward compatibility.
-        """
-        logger.warning("This is the old way to define the tool parameters. Please use the new way.")
-        args: dict[str, tuple[Any, Field] | list[str]] = {}
-
-        for key in self.tool_params:
-            if key.startswith("!"):  # Mandatory
-                args[key[1:]] = (str, Field(description=self.tool_params[key]))
-            else:  # Optional
-                args[key] = (str | None, Field(description=self.tool_params[key], default=None))
-
-        if self.use_search_query:
-            args["search_query"] = (
-                str | None,
-                Field(description="Search query to find relevant documents.", default=None),
-            )
-
-        model = create_model("ToolInput", **args, __base__=BaseModel)
-        return {"ToolInput": model}
-
-    def create_args_schema_v2(self) -> dict[str, BaseModel]:
         """Create the tool input schema using the new tool parameters configuration."""
         args: dict[str, tuple[Any, Field] | list[str]] = {}
 
         for tool_param in self.tools_params_v2:
-            if tool_param["mandatory"]:
-                args[tool_param["name"]] = (str, Field(description=tool_param["description"]))
-            else:
-                args[tool_param["name"]] = (str | None, Field(description=tool_param["description"], default=None))
+            datatype = tool_param["datatype"]
+            # Map string datatypes to Python types
+            type_mapping = {
+                "string": str,
+                "number": float,
+                "boolean": bool,
+                "integer": int,
+                "timestamp": datetime,
+                "list": list,
+                "dict": dict
+            }
+            
+            try:
+                python_type = type_mapping.get(datatype)
+                if python_type is None:
+                    raise ValueError(f"Unsupported datatype: {datatype}")
+                
+                if tool_param["mandatory"]:
+                    args[tool_param["name"]] = (python_type, Field(description=tool_param["description"]))
+                else:
+                    args[tool_param["name"]] = (Optional[python_type], Field(description=tool_param["description"], default=None))
+            except Exception as e:
+                logger.error(f"Error processing datatype for parameter {tool_param['name']}: {str(e)}")
+                raise ValueError(f"Invalid datatype configuration for parameter {tool_param['name']}: {str(e)}")
 
         if self.use_search_query:
             args["search_query"] = (
@@ -254,7 +243,7 @@ class AstraDBToolComponent(LCToolComponent):
         Returns:
             Tool: The built Astra DB tool.
         """
-        schema_dict = self.create_args_schema() if len(self.tool_params.keys()) > 0 else self.create_args_schema_v2()
+        schema_dict = self.create_args_schema()
 
         tool = StructuredTool.from_function(
             name=self.tool_name,
@@ -327,6 +316,18 @@ class AstraDBToolComponent(LCToolComponent):
         msg = f"Could not parse date: {timestamp_str}"
         logger.error(msg)
         raise ValueError(msg)
+    
+    def parse_value(self, value: str, datatype: str) -> Any:
+        """Parse the value based on the data type."""
+        if datatype == "string":
+            return value
+        elif datatype == "number":
+            return float(value)
+        elif datatype == "boolean":
+            return value.lower() == "true"
+        elif datatype == "timestamp":
+            return self.parse_timestamp(value)
+        return value
 
     def build_filter(self, args: dict, filter_settings: list) -> dict:
         """Build filter dictionary for AstraDB query.
@@ -348,25 +349,17 @@ class AstraDBToolComponent(LCToolComponent):
             if filter_setting and value is not None:
                 field_name = filter_setting["attribute_name"] if filter_setting["attribute_name"] else key
                 filter_key = field_name if not filter_setting["metadata"] else f"metadata.{field_name}"
+                
                 if filter_setting["operator"] == "$exists":
                     filters[filter_key] = {**filters.get(filter_key, {}), filter_setting["operator"]: True}
                 elif filter_setting["operator"] in ["$in", "$nin", "$all"]:
                     filters[filter_key] = {
                         **filters.get(filter_key, {}),
-                        filter_setting["operator"]: value.split(",") if isinstance(value, str) else value,
+                        filter_setting["operator"]: [self.parse_value(item, filter_setting["datatype"]) for item in value.split(",")],
                     }
-                elif filter_setting["is_timestamp"] == True:  # noqa: E712
-                    try:
-                        filters[filter_key] = {
-                            **filters.get(filter_key, {}),
-                            filter_setting["operator"]: self.parse_timestamp(value),
-                        }
-                    except ValueError as e:
-                        msg = f"Error parsing timestamp: {e} - Use the prompt to specify the date in the correct format"
-                        logger.error(msg)
-                        raise ValueError(msg) from e
                 else:
-                    filters[filter_key] = {**filters.get(filter_key, {}), filter_setting["operator"]: value}
+                    filters[filter_key] = {**filters.get(filter_key, {}), 
+                                           filter_setting["operator"]: self.parse_value(value, filter_setting["datatype"])}
         return filters
 
     def run_model(self, **args) -> Data | list[Data]:
