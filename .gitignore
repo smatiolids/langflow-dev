@@ -18,6 +18,9 @@ qdrant_storage
 .chroma
 .ruff_cache
 
+config/*
+data/*
+
 # PyCharm
 .idea/
 

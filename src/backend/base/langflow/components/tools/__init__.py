@@ -5,6 +5,9 @@ from langchain_core._api.deprecation import LangChainDeprecationWarning
 from .calculator import CalculatorToolComponent
 from .google_search_api import GoogleSearchAPIComponent
 from .google_serper_api import GoogleSerperAPIComponent
+from .google_serper_api_core import GoogleSerperAPICore
+# from .ibm_datalake import IBMDatalakeToolComponent
+from .mcp_component import MCPToolsComponent
 from .python_code_structured_tool import PythonCodeStructuredTool
 from .python_repl import PythonREPLToolComponent
 from .search_api import SearchAPIComponent
@@ -26,6 +29,9 @@ __all__ = [
     "GleanSearchAPIComponent",
     "GoogleSearchAPIComponent",
     "GoogleSerperAPIComponent",
+    "GoogleSerperAPICore",
+    # "IBMDatalakeToolComponent", # TODO: Add IBMDatalakeToolComponent
+    "MCPToolsComponent",
     "PythonCodeStructuredTool",
     "PythonREPLToolComponent",
     "SearXNGToolComponent",

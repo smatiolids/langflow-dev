@@ -194,9 +194,9 @@ async def handle_list_tools():
                         inputSchema=json_schema_from_flow(flow),
                     )
                     tools.append(tool)
-                except Exception as e:  # noqa: BLE001
-                    msg = f"Error in listing tools: {e!s} from flow: {flow_name}"
-                    logger.warning(msg)
+                except Exception as e:
+                    msg = f"MCP Server:Error in adding tool {flow_name}; Error: {e!s}"
+                    logger.exception(msg)
                     continue
     except Exception as e:
         msg = f"Error in listing tools: {e!s}"

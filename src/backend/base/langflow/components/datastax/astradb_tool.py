@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timezone
 from typing import Any
-
+import json
 from astrapy import Collection, DataAPIClient, Database
 from astrapy.admin import parse_api_endpoint
 from langchain.pydantic_v1 import BaseModel, Field, create_model
@@ -12,6 +12,7 @@ from langflow.io import BoolInput, DictInput, HandleInput, IntInput, SecretStrIn
 from langflow.logging import logger
 from langflow.schema import Data
 from langflow.schema.table import EditMode
+from copy import deepcopy
 
 
 class AstraDBToolComponent(LCToolComponent):
@@ -216,7 +217,7 @@ class AstraDBToolComponent(LCToolComponent):
             }
             
             try:
-                python_type = type_mapping.get(datatype)
+                python_type = type_mapping.get(datatype, str)
                 if python_type is None:
                     raise ValueError(f"Unsupported datatype: {datatype}")
                 
@@ -394,6 +395,11 @@ class AstraDBToolComponent(LCToolComponent):
             find_options["projection"] = projection
 
         try:
+            # Redact vector content for logging using deepcopy to avoid modifying original
+            log_options = deepcopy(find_options)
+            if "$vector" in log_options.get("sort", {}):
+                log_options["sort"]["$vector"] = "[REDACTED]"
+            logger.info(f"Query: {json.dumps(log_options, indent=4)}")
             results = collection.find(**find_options)
         except Exception as e:
             msg = f"Error on Astra DB Tool {self.tool_name} request: {e}"

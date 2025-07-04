@@ -4618,6 +4618,7 @@ dependencies = [
     { name = "opensearch-py" },
     { name = "opik" },
     { name = "pgvector" },
+    { name = "presto-python-client" },
     { name = "pyarrow" },
     { name = "pydantic-ai" },
     { name = "pydantic-settings" },
@@ -4670,7 +4671,7 @@ nv-ingest = [
     { name = "nv-ingest-client" },
 ]
 postgresql = [
-    { name = "sqlalchemy", extra = ["postgresql-psycopg", "postgresql-psycopg2binary"] },
+    { name = "sqlalchemy", extra = ["postgresql-psycopg"] },
 ]
 
 [package.dev-dependencies]
@@ -4807,6 +4808,7 @@ requires-dist = [
     { name = "opensearch-py", specifier = "==2.8.0" },
     { name = "opik", specifier = ">=1.6.3" },
     { name = "pgvector", specifier = "==0.3.6" },
+    { name = "presto-python-client", specifier = ">=0.8.4" },
     { name = "pyarrow", specifier = "==19.0.0" },
     { name = "pydantic-ai", specifier = ">=0.0.19" },
     { name = "pydantic-settings", specifier = ">=2.2.0,<3.0.0" },
@@ -4826,7 +4828,6 @@ requires-dist = [
     { name = "spider-client", specifier = "==0.1.24" },
     { name = "sqlalchemy", extras = ["aiosqlite"], specifier = ">=2.0.38,<3.0.0" },
     { name = "sqlalchemy", extras = ["postgresql-psycopg"], marker = "extra == 'postgresql'" },
-    { name = "sqlalchemy", extras = ["postgresql-psycopg2binary"], marker = "extra == 'postgresql'" },
     { name = "sseclient-py", specifier = "==1.8.0" },
     { name = "supabase", specifier = "==2.6.0" },
     { name = "twelvelabs", specifier = ">=0.4.7" },
@@ -7503,6 +7504,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/08/39/679ca9b26c7bb2999ff122d50faa301e49af82ca9c066ec061cfbc0c6784/pre_commit-4.2.0.tar.gz", hash = "sha256:601283b9757afd87d40c4c4a9b2b5de9637a8ea02eaff7adc2d0fb4e04841146", size = 193424 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/88/74/a88bf1b1efeae488a0c0b7bdf71429c313722d1fc0f377537fbe554e6180/pre_commit-4.2.0-py2.py3-none-any.whl", hash = "sha256:a009ca7205f1eb497d10b845e52c838a98b6cdd2102a6c8e4540e94ee75c58bd", size = 220707 },
+]
+
+[[package]]
+name = "presto-python-client"
+version = "0.8.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "click" },
+    { name = "requests" },
+    { name = "six" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/75/f1/470dab0972f09fabe721c6112f3dcbefce0da156260ca0e198ea0815ad96/presto-python-client-0.8.4.tar.gz", hash = "sha256:b5d9d7278c10af932c6b5ce3a417dfa883b539e947ece1f7f43ba4632c2994c5", size = 25247 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/49/f1/0fe967745e50789113e19a485bc70888f79e1fab4c05171e650bd6802d33/presto_python_client-0.8.4-py3-none-any.whl", hash = "sha256:f8ae1e139f7676fb955dd180027ac9ac6450a8552d53b6b85b79fc1da6d37190", size = 23472 },
 ]
 
 [[package]]

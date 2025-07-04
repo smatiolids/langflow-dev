@@ -124,8 +124,7 @@ dependencies = [
     "langchain-ibm>=0.3.8",
     "opik>=1.6.3",
     "openai>=1.68.2",
-    'gassist>=0.0.1; sys_platform == "win32"',
-    "twelvelabs>=0.4.7",
+    "presto-python-client>=0.8.4"
 ]
 
 [dependency-groups]
@@ -173,7 +172,7 @@ dev = [
     'elevenlabs==1.58.1; python_version == "3.12"',
     'elevenlabs>=1.52.0; python_version != "3.12"',
     "faker>=37.0.0",
-    "pytest-timeout>=2.3.1",
+    "pytest-timeout>=2.3.1"
 ]
 
 [tool.uv.sources]
@@ -212,7 +211,7 @@ nv-ingest = [
 ]
 
 postgresql = [
-  "sqlalchemy[postgresql_psycopg2binary]",
+  "sqlalchemy[postgresql_psycopg]",
     "sqlalchemy[postgresql_psycopg]",
 
 ]
